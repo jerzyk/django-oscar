@@ -77,7 +77,7 @@ class OrderSearchForm(forms.Form):
     format_choices = (('html', _('HTML')),
                       ('csv', _('CSV')),)
     response_format = forms.ChoiceField(widget=forms.RadioSelect, required=False,
-            choices=format_choices, initial='html', label=_("Get results as"))
+        choices=format_choices, initial='html', label=_("Get results as"))
 
     def __init__(self, *args, **kwargs):
         # ensure that 'response_format' is always set
@@ -87,8 +87,10 @@ class OrderSearchForm(forms.Form):
         elif len(args) > 0:
             data = args[0]
             args = args[1:]
+        else:
+            data = None
 
-        if data.get('response_format', None) not in self.format_choices:
+        if data and data.get('response_format', None) not in self.format_choices:
             # handle POST/GET dictionaries, whose are unmutable
             if isinstance(data, QueryDict):
                 data = data.dict()
