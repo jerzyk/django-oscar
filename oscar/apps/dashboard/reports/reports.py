@@ -21,7 +21,7 @@ class ReportGenerator(object):
         self.formatter = self.formatters['%s_formatter' % kwargs['formatter']]()
 
     def report_description(self):
-        return _(u'%(report_filter)s between %(start_date)s and %(end_date)s') % {
+        return _('%(report_filter)s between %(start_date)s and %(end_date)s') % {
             'report_filter': self.description,
             'start_date': self.start_date,
             'end_date': self.end_date,
