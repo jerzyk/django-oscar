@@ -180,7 +180,8 @@ class SearchByDateRangeForm(forms.Form):
         date_to = self.cleaned_data['date_to']
         if date_from and date_to:
             return _('Orders placed between %(date_from)s and %(date_to)s') % {
-                'date_from': date_from, 'date_to': date_to}
+                'date_from': date_from,
+                'date_to': date_to }
         elif date_from and not date_to:
             return _('Orders placed since %s') % date_from
         elif not date_from and date_to:
