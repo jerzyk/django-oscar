@@ -21,9 +21,13 @@ class Applicator(object):
         """
         Apply all relevant offers to the given basket.
 
-        The request and user is passed too as sometimes the available offers
+        The request and user are passed too as sometimes the available offers
         are dependent on the user (eg session-based offers).
         """
+        # Flush any existing discounts to make sure they are recalculated
+        # correctly
+        basket.remove_discounts()
+
         offers = self.get_offers(request, basket)
         logger.debug("Found %d offers to apply to basket %d",
                      len(offers), basket.id)
@@ -80,9 +84,12 @@ class Applicator(object):
         Return site offers that are available to all users
         """
         date_based_offers = ConditionalOffer.active.filter(
-            offer_type=ConditionalOffer.SITE)
+            offer_type=ConditionalOffer.SITE,
+            status=ConditionalOffer.OPEN)
         nondate_based_offers = ConditionalOffer.objects.filter(
-            offer_type=ConditionalOffer.SITE, start_date=None, end_date=None)
+            offer_type=ConditionalOffer.SITE,
+            status=ConditionalOffer.OPEN,
+            start_date=None, end_date=None)
         return list(chain(date_based_offers, nondate_based_offers))
 
     def get_basket_offers(self, basket, user):

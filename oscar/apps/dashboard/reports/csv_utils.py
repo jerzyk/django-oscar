@@ -4,6 +4,9 @@ import csv
 import cStringIO
 
 
+# These classes are copied from http://docs.python.org/2/library/csv.html
+
+
 class CsvUnicodeWriter(object):
     """
     A CSV writer which will write rows to CSV file "f",
@@ -16,7 +19,7 @@ class CsvUnicodeWriter(object):
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
-        # write BOM into file
+        # Write BOM into file
         self.stream.write(codecs.BOM_UTF8)
 
     def writerow(self, row):
@@ -57,9 +60,9 @@ class CsvUnicodeReader(object):
     which is encoded in the given encoding.
     """
 
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwargs):
         f = UTF8Recoder(f, encoding)
-        self.reader = csv.reader(f, dialect=dialect, **kwds)
+        self.reader = csv.reader(f, dialect=dialect, **kwargs)
 
     def next(self):
         row = self.reader.next()

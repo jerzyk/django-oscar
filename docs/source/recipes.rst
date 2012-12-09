@@ -52,3 +52,11 @@ Shipping
 
     recipes/how_to_configure_shipping
 
+Offers
+------
+
+.. toctree::
+    :maxdepth: 1
+
+    recipes/how_to_create_a_custom_range
+    recipes/how_to_create_a_custom_condition

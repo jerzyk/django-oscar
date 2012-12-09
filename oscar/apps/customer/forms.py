@@ -181,10 +181,10 @@ class SearchByDateRangeForm(forms.Form):
         if date_from and date_to:
             return _('Orders placed between %(date_from)s and %(date_to)s') % {
                 'date_from': date_from,
-                'date_to': date_to }
-        elif date_from and not date_to:
+                'date_to': date_to}
+        elif date_from:
             return _('Orders placed since %s') % date_from
-        elif not date_from and date_to:
+        elif date_to:
             return _('Orders placed until %s') % date_to
 
     def get_filters(self):
@@ -199,7 +199,12 @@ class SearchByDateRangeForm(forms.Form):
         return {}
 
 
-class CleanEmailMixin(object):
+class UserForm(forms.ModelForm):
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        kwargs['instance'] = user
+        super(UserForm, self).__init__(*args, **kwargs)
 
     def clean_email(self):
         """
@@ -209,28 +214,15 @@ class CleanEmailMixin(object):
         level in ``django.contrib.auth.models.User``.
         """
         email = self.cleaned_data['email']
-
         try:
-            user = User.objects.get(email=email)
+            User.objects.exclude(
+                id=self.user.id).get(email=email)
         except User.DoesNotExist:
-            # this email address is unique so we don't have to worry
-            # about it
             return email
-
-        if self.instance and self.instance.id != user.id:
+        else:
             raise ValidationError(
                 _("A user with this email address already exists")
             )
-
-        return email
-
-
-class UserForm(forms.ModelForm, CleanEmailMixin):
-
-    def __init__(self, user, *args, **kwargs):
-        self.user = user
-        kwargs['instance'] = user
-        super(UserForm, self).__init__(*args, **kwargs)
 
     class Meta:
         model = User
@@ -240,13 +232,13 @@ class UserForm(forms.ModelForm, CleanEmailMixin):
 
 
 if hasattr(settings, 'AUTH_PROFILE_MODULE'):
-
     Profile = get_profile_class()
 
-    class UserAndProfileForm(forms.ModelForm, CleanEmailMixin):
-
-        first_name = forms.CharField(label=_('First name'), max_length=128)
-        last_name = forms.CharField(label=_('Last name'), max_length=128)
+    class UserAndProfileForm(forms.ModelForm):
+        first_name = forms.CharField(
+            label=_('First name'), max_length=128, required=False)
+        last_name = forms.CharField(
+            label=_('Last name'), max_length=128, required=False)
         email = forms.EmailField(label=_('Email address'))
 
         # Fields from user model
@@ -279,13 +271,25 @@ if hasattr(settings, 'AUTH_PROFILE_MODULE'):
             model = Profile
             exclude = ('user',)
 
+        def clean_email(self):
+            email = self.cleaned_data['email']
+            try:
+                User.objects.exclude(
+                    id=self.user.id).get(email=email)
+            except User.DoesNotExist:
+                return email
+            else:
+                raise ValidationError(
+                    _("A user with this email address already exists")
+                )
+
         def save(self, *args, **kwargs):
             user = self.instance.user
             user.first_name = self.cleaned_data['first_name']
             user.last_name = self.cleaned_data['last_name']
             user.email = self.cleaned_data['email']
             user.save()
-            return super(ProfileForm, self).save(*args,**kwargs)
+            return super(ProfileForm, self).save(*args, **kwargs)
 
     ProfileForm = UserAndProfileForm
 else:
