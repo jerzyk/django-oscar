@@ -91,8 +91,8 @@
         <tr>
             <th>
                 {% trans "Select all" %}
-    		</th>
-            <th>{% anchor 'number' 'Order number' %}</th>
+    		</th>{% trans "Order number" as order_number_label %}
+            <th>{% anchor 'number' order_number_label %}</th>
     		<th>{% trans "Total inc tax" %}</th>
     		<th>{% trans "Date of purchase" %}</th>
     		<th>{% trans "Number of items" %}</th>
